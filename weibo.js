@@ -63,18 +63,27 @@ function getPicNodes(feed) {
   return feed.querySelectorAll('li.WB_pic img')
 }
 
-const feedList = document.querySelector('.WB_feed')
-
-feedList.addEventListener('click', function (e) {
-  if (parent(e.target, (node) => node.classList.contains('chb_download_btn')) !== document.body) {
-    const feed = parent(e.target, (node) => node.classList.contains('WB_cardwrap'))
-    const picNodes = getPicNodes(feed)
-    const addresses = getLargePicAddress(picNodes)
-    downloadAll(addresses)
+let timer = setInterval(() => {
+  if (document.querySelector('.WB_feed') === null) {
+    return
   }
-})
+  clearInterval(timer)
+  const feedList = document.querySelector('.WB_feed')
 
-const observer = new MutationObserver(cb)
+  feedList.addEventListener('click', function (e) {
+    if (parent(e.target, (node) => node.classList.contains('chb_download_btn')) !== document.body) {
+      const feed = parent(e.target, (node) => node.classList.contains('WB_cardwrap'))
+      const picNodes = getPicNodes(feed)
+      const addresses = getLargePicAddress(picNodes)
+      downloadAll(addresses)
+    }
+  })
+
+  const observer = new MutationObserver(cb)
+  // observer child list change since we care about feed dynamic adding
+  observer.observe(feedList, {childList: true})
+}, 100)
+
 
 // insert css
 const head = document.querySelector('head')
@@ -85,7 +94,3 @@ style.innerHTML = `
 }
 `
 head.appendChild(style)
-
-
-// observer child list change since we care about feed dynamic adding
-observer.observe(feedList, {childList: true})

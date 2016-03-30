@@ -59,28 +59,33 @@ function getPicNodes(feed) {
   return feed.querySelectorAll('li.WB_pic img');
 }
 
-var feedList = document.querySelector('.WB_feed');
-
-feedList.addEventListener('click', function (e) {
-  if (parent(e.target, function (node) {
-    return node.classList.contains('chb_download_btn');
-  }) !== document.body) {
-    var feed = parent(e.target, function (node) {
-      return node.classList.contains('WB_cardwrap');
-    });
-    var picNodes = getPicNodes(feed);
-    var addresses = getLargePicAddress(picNodes);
-    downloadAll(addresses);
+var timer = setInterval(function () {
+  if (document.querySelector('.WB_feed') === null) {
+    return;
   }
-});
+  clearInterval(timer);
+  var feedList = document.querySelector('.WB_feed');
 
-var observer = new MutationObserver(cb);
+  feedList.addEventListener('click', function (e) {
+    if (parent(e.target, function (node) {
+      return node.classList.contains('chb_download_btn');
+    }) !== document.body) {
+      var feed = parent(e.target, function (node) {
+        return node.classList.contains('WB_cardwrap');
+      });
+      var picNodes = getPicNodes(feed);
+      var addresses = getLargePicAddress(picNodes);
+      downloadAll(addresses);
+    }
+  });
+
+  var observer = new MutationObserver(cb);
+  // observer child list change since we care about feed dynamic adding
+  observer.observe(feedList, { childList: true });
+}, 100);
 
 // insert css
 var head = document.querySelector('head');
 var style = document.createElement('style');
 style.innerHTML = '\n.WB_row_r4 li {\n  width: 20%; !important\n}\n';
 head.appendChild(style);
-
-// observer child list change since we care about feed dynamic adding
-observer.observe(feedList, { childList: true });

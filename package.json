@@ -5,7 +5,8 @@
   "main": "weibo.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel -o build.js weibo.js"
+    "build": "babel -o build.js weibo.js",
+    "watch": "babel -o build.js -w weibo.js"
   },
   "author": "",
   "license": "ISC",
