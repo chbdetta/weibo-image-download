@@ -19,8 +19,7 @@
   function cb(mutations) {
     mutations.forEach(function (record) {
       var addedFeeds = record.addedNodes;
-      console.log(addedFeeds);
-      addedFeeds.forEach(addButton);
+      [].forEach.call(addedFeeds, addButton);
     });
   }
 
@@ -90,9 +89,16 @@
       }
     });
 
+    // add button to existed feed
+    [].forEach.call(feedList.children, (feed) => {
+      addButton(feed)
+    })
+
+    // observer future feed to add button
     var observer = new MutationObserver(cb);
     // observer child list change since we care about feed dynamic adding
     observer.observe(feedList, { childList: true });
+    
   }, 100);
 
   // insert css
