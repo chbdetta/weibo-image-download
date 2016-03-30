@@ -88,6 +88,11 @@
         const addresses = getLargePicAddress(picNodes)
         downloadAll(addresses)
       }
+    });
+
+    // add button to existed feed
+    [].forEach.call(feedList.children, (feed) => {
+      addButton(feed)
     })
 
     const observer = new MutationObserver(cb)
