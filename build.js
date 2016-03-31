@@ -15,15 +15,6 @@
   // user MutationObserver to detect dom changing
   // add "download" button to each weibo feed
 
-  // callback function when mutation is observed
-  function cb(mutations) {
-    mutations.forEach(function (record) {
-      var addedFeeds = record.addedNodes;
-      console.log(addedFeeds);
-      addedFeeds.forEach(addButton);
-    });
-  }
-
   var button = document.createElement('li');
   var link = document.createElement('a');
   link.className = 'S_txt2 chb_download_btn';
@@ -35,6 +26,12 @@
     if (handle) {
       handle.appendChild(button.cloneNode(true));
     }
+  }
+  function hasButton(feed) {
+    return feed && feed.querySelector('.chb_download_btn');
+  }
+  function isButton(node) {
+    return node && node.classList && node.classList.contains('chb_download_btn');
   }
 
   function parent(node, filter) {
@@ -70,35 +67,32 @@
     return feed.querySelectorAll('li.WB_pic img');
   }
 
-  var timer = setInterval(function () {
-    if (document.querySelector('.WB_feed') === null) {
-      return;
+  var container = document;
+
+  container.addEventListener('click', function (e) {
+    if (parent(e.target, function (node) {
+      return isButton(node);
+    }) !== document.body) {
+      var feed = parent(e.target, function (node) {
+        return node.classList.contains('WB_cardwrap');
+      });
+      var picNodes = getPicNodes(feed);
+      var addresses = getLargePicAddress(picNodes);
+      downloadAll(addresses);
     }
-    clearInterval(timer);
-    var feedList = document.querySelector('.WB_feed');
+  });
 
-    feedList.addEventListener('click', function (e) {
-      if (parent(e.target, function (node) {
-        return node.classList.contains('chb_download_btn');
-      }) !== document.body) {
-        var feed = parent(e.target, function (node) {
-          return node.classList.contains('WB_cardwrap');
-        });
-        var picNodes = getPicNodes(feed);
-        var addresses = getLargePicAddress(picNodes);
-        downloadAll(addresses);
-      }
-    });
-
-    // add button to existed feed
-    [].forEach.call(feedList.children, function (feed) {
-      addButton(feed);
-    });
-
-    var observer = new MutationObserver(cb);
-    // observer child list change since we care about feed dynamic adding
-    observer.observe(feedList, { childList: true });
-  }, 100);
+  // use polling to add button
+  var addButtonMoniter = setInterval(function () {
+    var feedList = container.querySelector('.WB_feed');
+    if (feedList) {
+      [].forEach.call(feedList.childNodes, function (node) {
+        if (node.nodeType === 1 && !hasButton(node)) {
+          addButton(node);
+        }
+      });
+    }
+  }, 1000);
 
   // insert css
   var head = document.querySelector('head');
